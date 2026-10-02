@@ -1,0 +1,10 @@
+{
+  "name": "smart-home-simulators",
+  "version": "1.0.0",
+  "description": "Simulated IoT sensors for Smart Home Lighting System",
+  "dependencies": {
+    "mqtt": "^5.3.0",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.0"
+  }
+}

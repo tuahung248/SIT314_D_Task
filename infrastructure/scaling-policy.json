@@ -1,0 +1,51 @@
+{
+  "Description": "SQS backlog-per-task auto-scaling for Rule Engine ECS service",
+  "ServiceNamespace": "ecs",
+  "ScalableDimension": "ecs:service:DesiredCount",
+  "ResourceId": "service/smart-home-cluster/rule-engine-service",
+  "MinCapacity": 1,
+  "MaxCapacity": 10,
+  "TargetTrackingScalingPolicies": [
+    {
+      "PolicyName": "SQSBacklogPerTaskScaling",
+      "TargetTrackingScalingPolicyConfiguration": {
+        "TargetValue": 100,
+        "CustomizedMetricSpecification": {
+          "MetricName": "BacklogPerTask",
+          "Namespace": "SmartHomeLighting",
+          "Statistic": "Average",
+          "Unit": "Count"
+        },
+        "ScaleInCooldown": 300,
+        "ScaleOutCooldown": 60
+      }
+    },
+    {
+      "PolicyName": "CPUUtilisationScaling",
+      "TargetTrackingScalingPolicyConfiguration": {
+        "TargetValue": 60,
+        "PredefinedMetricSpecification": {
+          "PredefinedMetricType": "ECSServiceAverageCPUUtilization"
+        },
+        "ScaleInCooldown": 300,
+        "ScaleOutCooldown": 120
+      }
+    }
+  ],
+  "CloudWatchAlarms": [
+    {
+      "AlarmName": "RuleEngine-HighCPU",
+      "MetricName": "CPUUtilization",
+      "Namespace": "AWS/ECS",
+      "Statistic": "Average",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 60,
+      "ComparisonOperator": "GreaterThanThreshold",
+      "Dimensions": [
+        { "Name": "ClusterName", "Value": "smart-home-cluster" },
+        { "Name": "ServiceName", "Value": "rule-engine-service" }
+      ]
+    }
+  ]
+}

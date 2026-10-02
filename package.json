@@ -1,0 +1,27 @@
+{
+  "name": "smart-home-lighting-iot",
+  "version": "1.0.0",
+  "description": "Smart Home Lighting IoT System — SIT314 Distinction Project",
+  "private": true,
+  "scripts": {
+    "simulate": "node simulators/run-all.js",
+    "simulate:pir": "node simulators/pir-sensor.js",
+    "simulate:ldr": "node simulators/ldr-sensor.js",
+    "simulate:actuator": "node simulators/light-actuator.js",
+    "test": "npm run test:rule-engine && npm run test:device-service && npm run test:notification-service",
+    "test:rule-engine": "cd services/rule-engine && npx jest --verbose",
+    "test:device-service": "cd services/device-service && npx jest --verbose",
+    "test:notification-service": "cd services/notification-service && npx jest --verbose",
+    "integration-test": "node scripts/integration-test.js",
+    "load-test": "node scripts/load-test.js",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "author": "Tuan Hung Bui (223837827)",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^18.0.5",
+    "mqtt": "^5.16.0"
+  }
+}

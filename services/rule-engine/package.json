@@ -1,0 +1,20 @@
+{
+  "name": "rule-engine-service",
+  "version": "1.0.0",
+  "description": "Rule Engine — evaluates lighting rules based on motion + lux + time-of-day",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "jest --verbose --coverage"
+  },
+  "dependencies": {
+    "mqtt": "^5.3.0",
+    "mongoose": "^7.6.0",
+    "aws-sdk": "^2.1500.0",
+    "dotenv": "^16.3.1",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

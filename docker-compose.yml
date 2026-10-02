@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # ─── MQTT Broker ───────────────────────────────
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+      - "9001:9001"
+    volumes:
+      - ./infrastructure/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    restart: unless-stopped
+
+  # ─── MongoDB ───────────────────────────────────
+  mongodb:
+    image: mongo:7
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: smart_home_lighting
+    volumes:
+      - mongodb-data:/data/db
+    restart: unless-stopped
+
+  # ─── Node-RED ──────────────────────────────────
+  node-red:
+    image: nodered/node-red:latest
+    container_name: node-red
+    ports:
+      - "1880:1880"
+    environment:
+      - TZ=Australia/Melbourne
+    volumes:
+      - node-red-data:/data
+      - ./node-red/flows.json:/data/flows.json
+    depends_on:
+      - mosquitto
+      - mongodb
+    restart: unless-stopped
+
+  # ─── Device Service ────────────────────────────
+  device-service:
+    build:
+      context: ./services/device-service
+      dockerfile: Dockerfile
+    container_name: device-service
+    ports:
+      - "3001:3001"
+    environment:
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      MONGODB_URI: mongodb://mongodb:27017/smart_home_lighting
+      DEVICE_SERVICE_PORT: 3001
+    depends_on:
+      - mosquitto
+      - mongodb
+    restart: unless-stopped
+
+  # ─── Rule Engine ───────────────────────────────
+  rule-engine:
+    build:
+      context: ./services/rule-engine
+      dockerfile: Dockerfile
+    container_name: rule-engine
+    environment:
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      MONGODB_URI: mongodb://mongodb:27017/smart_home_lighting
+    depends_on:
+      - mosquitto
+      - mongodb
+    restart: unless-stopped
+
+  # ─── Notification Service ──────────────────────
+  notification-service:
+    build:
+      context: ./services/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    environment:
+      MQTT_BROKER_URL: mqtt://mosquitto:1883
+      WEBHOOK_URL: ${WEBHOOK_URL:-https://webhook.site/test}
+    depends_on:
+      - mosquitto
+    restart: unless-stopped
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:
+  mongodb-data:
+  node-red-data:

@@ -1,0 +1,44 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowConnect",
+      "Effect": "Allow",
+      "Action": "iot:Connect",
+      "Resource": "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:client/${iot:Connection.Thing.ThingName}"
+    },
+    {
+      "Sid": "AllowPublishOwnTopics",
+      "Effect": "Allow",
+      "Action": "iot:Publish",
+      "Resource": [
+        "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:topic/home/${iot:Connection.Thing.Attributes[buildingId]}/${iot:Connection.Thing.Attributes[roomId]}/motion",
+        "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:topic/home/${iot:Connection.Thing.Attributes[buildingId]}/${iot:Connection.Thing.Attributes[roomId]}/lux"
+      ]
+    },
+    {
+      "Sid": "AllowSubscribeOwnTopics",
+      "Effect": "Allow",
+      "Action": "iot:Subscribe",
+      "Resource": [
+        "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:topicfilter/home/${iot:Connection.Thing.Attributes[buildingId]}/${iot:Connection.Thing.Attributes[roomId]}/light/cmd"
+      ]
+    },
+    {
+      "Sid": "AllowReceiveOwnTopics",
+      "Effect": "Allow",
+      "Action": "iot:Receive",
+      "Resource": [
+        "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:topic/home/${iot:Connection.Thing.Attributes[buildingId]}/${iot:Connection.Thing.Attributes[roomId]}/light/cmd"
+      ]
+    },
+    {
+      "Sid": "DenyPublishOtherTopics",
+      "Effect": "Deny",
+      "Action": "iot:Publish",
+      "NotResource": [
+        "arn:aws:iot:ap-southeast-2:ACCOUNT_ID:topic/home/${iot:Connection.Thing.Attributes[buildingId]}/${iot:Connection.Thing.Attributes[roomId]}/*"
+      ]
+    }
+  ]
+}

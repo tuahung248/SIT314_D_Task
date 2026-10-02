@@ -1,0 +1,51 @@
+{
+  "family": "smart-home-rule-engine",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/ecsTaskExecutionRole",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/smartHomeLightingTaskRole",
+  "containerDefinitions": [
+    {
+      "name": "rule-engine",
+      "image": "ACCOUNT_ID.dkr.ecr.ap-southeast-2.amazonaws.com/smart-home-rule-engine:latest",
+      "essential": true,
+      "environment": [
+        {
+          "name": "AWS_REGION",
+          "value": "ap-southeast-2"
+        },
+        {
+          "name": "MQTT_BROKER_URL",
+          "value": "mqtt://mosquitto-broker:1883"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "MONGODB_URI",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:ACCOUNT_ID:secret:smart-home/mongodb-uri"
+        },
+        {
+          "name": "AWS_SQS_QUEUE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-2:ACCOUNT_ID:secret:smart-home/sqs-queue-url"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/smart-home-rule-engine",
+          "awslogs-region": "ap-southeast-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "node -e 'process.exit(0)' || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      }
+    }
+  ]
+}
